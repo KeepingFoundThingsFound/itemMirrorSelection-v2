@@ -1,14 +1,6 @@
     // Insert your Dropbox app key here:
     var DROPBOX_APP_KEY = 'uz03nsz5udagdff';
 
-  /**
-   * If you ever get an error "require is undefined", it's because you have not included the
-   * require.js dependency on your page. See the <script> tag in this document ending with
-   * "require.js"
-   */
-  require(["ItemMirror"], function(ItemMirror){
-    "use strict";
-
     var
       dropboxClientCredentials,
       //dropboxAuthDriver,
@@ -19,6 +11,16 @@
       groupingItemURI,
       itemMirrorOptions,
       createAssociationOptions;
+
+  /**
+   * If you ever get an error "require is undefined", it's because you have not included the
+   * require.js dependency on your page. See the <script> tag in this document ending with
+   * "require.js"
+   */
+  require(["ItemMirror"], function(ItemMirror){
+    "use strict";
+
+
       
     /**
      * dropboxClientCredentials.sandbox should be true when you want to use
@@ -53,12 +55,7 @@
     //This is the starting point where the initial item mirror item will be
     //constructed: root. It can also be the name of
     //or path to a folder you want to limit access to
-    groupingItemURI = /#(.*)/.exec(window.location.href)[1];
-    if (groupingItemURI) {
-      run();
-    }else{
-      modalFolderSelect.run();
-    }
+    groupingItemURI = /#(.*)/.exec(window.location.href);
     
     //Set up all of the item mirror options, even though
     //chances are the only one you're going to use is case 3
@@ -207,10 +204,10 @@
         if (isGroupingItem) {
             //console.log("GUID is " + GUID);
             //console.log("break");
-            $thisAssoc.prepend($('<img>', {'src':"Folder.png", 'alt':displayText, 'title':displayText}));
+            $thisAssoc.prepend($('<img>', {'src':"images/Folder.png", 'alt':displayText, 'title':displayText}));
             $thisAssoc.bind("click",{guid:GUID, itemmirror:itemMirror},createItemMirrorFromGroupingItem);
         }else{
-          $thisAssoc.prepend($('<img>', {'src':"Document.png", 'alt':displayText, 'title':displayText}));
+          $thisAssoc.prepend($('<img>', {'src':"images/Document.png", 'alt':displayText, 'title':displayText}));
         }
       });
       $('#nav').append($thisAssoc);
@@ -227,6 +224,12 @@
      }).insertBefore('#nav');
     }
     
-
+    if (groupingItemURI) {
+      run();
+    }else{
+      console.log('we\'re calling modal');
+      modalFolderSelect.run();
+      console.log(modalFolderSelect);
+    }
 
   });

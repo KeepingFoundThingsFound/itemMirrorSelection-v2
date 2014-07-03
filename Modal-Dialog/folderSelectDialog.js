@@ -19,7 +19,7 @@ function modalFolderSelect() {
           if (error) {
             throw error;
           }
-          constructNewItemMirror();
+          this.constructNewItemMirror();
         });
       };
   
