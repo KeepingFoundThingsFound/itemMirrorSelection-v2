@@ -1,5 +1,108 @@
+
+'use strict';
+
+require.config({
+    paths: {
+        jquery: '../bower_components/jquery/jquery',
+        bootstrapAffix: '../bower_components/sass-bootstrap/js/affix',
+        bootstrapAlert: '../bower_components/sass-bootstrap/js/alert',
+        bootstrapButton: '../bower_components/sass-bootstrap/js/button',
+        bootstrapCarousel: '../bower_components/sass-bootstrap/js/carousel',
+        bootstrapCollapse: '../bower_components/sass-bootstrap/js/collapse',
+        bootstrapPopover: '../bower_components/sass-bootstrap/js/popover',
+        bootstrapScrollspy: '../bower_components/sass-bootstrap/js/scrollspy',
+        bootstrapTab: '../bower_components/sass-bootstrap/js/tab',
+        bootstrapTooltip: '../bower_components/sass-bootstrap/js/tooltip',
+        bootstrapTransition: '../bower_components/sass-bootstrap/js/transition',
+        bootstrapModal: '../bower_components/sass-bootstrap/js/modal'
+    },
+    shim: {
+        bootstrapAffix: {
+            deps: ['jquery']
+        },
+        bootstrapAlert: {
+            deps: ['jquery']
+        },
+        bootstrapButton: {
+            deps: ['jquery']
+        },
+        bootstrapCarousel: {
+            deps: ['jquery']
+        },
+        bootstrapCollapse: {
+            deps: ['jquery']
+        },
+        bootstrapPopover: {
+            deps: ['jquery']
+        },
+        bootstrapScrollspy: {
+            deps: ['jquery']
+        },
+        bootstrapTab: {
+            deps: ['jquery']
+        },
+        bootstrapTooltip: {
+            deps: ['jquery']
+        },
+        bootstrapTransition: {
+            deps: ['jquery']
+        },
+        bootstrapModal: {
+            deps: ['jquery']
+        }
+    }
+});
+
+require(["scripts/ItemSelection.js", "ItemMirror", "bootstrapModal"], function (ItemMirrorModule, ItemMirror) {
+  var DROPBOX_APP_KEY = 'uz03nsz5udagdff';
+  
+  dropboxClientCredentials = {
+    key: DROPBOX_APP_KEY,
+    //sandbox phased out in 0.10 and OAuth 2.0
+    //sandbox: false
+  };
+
+  var dropboxClient = new Dropbox.Client(dropboxClientCredentials);
+  
+  dropboxClient.authDriver(new Dropbox.AuthDriver.Redirect({
+    rememberUser: true
+  }));
+  dropboxClient.authenticate(function (error, client) {
+    if (error) { throw error; }
+
+    new ItemMirror({
+      groupingItemURI: "/",
+      xooMLDriver: {
+        driverURI: "DropboxXooMLUtility",
+        dropboxClient: dropboxClient
+      },
+      itemDriver: {
+        driverURI: "DropboxItemUtility",
+        dropboxClient: dropboxClient
+      }
+    }, function (error, itemMirror) {
+      if (error) { throw error; }
+        var id = 'itemMirrorSelection';	
+        var $modalContent = $('<div>',{'id': id, class: 'modal-content'});
+        var $modalDialog = $('<div>', {class: 'modal-dialog modal-lg'}).append($modalContent);
+        var $modal = $('<div>', {id: 'selectionModal'}).append($modalDialog);
+        $('body').append($modal);
+        
+      //picoModal({
+      //  content: "<div id='itemMirrorSelection'></div>",
+      //  width: "1000"
+      //});
+
+      //TODO: Typesafety
+      new ItemMirrorModule.ItemSelection(itemMirror, "itemMirrorSelection", "http://localhost:9000/");
+    });
+  });
+});
+
+
+
     // Insert your Dropbox app key here:
-    var DROPBOX_APP_KEY = 'uz03nsz5udagdff';
+    
 
     var
       dropboxClientCredentials,
@@ -21,23 +124,6 @@
     "use strict";
 
 
-      
-    /**
-     * dropboxClientCredentials.sandbox should be true when you want to use
-     * the full dropbox of the user (from the absolute root) and when you
-     * have a key that has full acess permissions, and should be false when
-     * you want to restrict the application to a sandboxed application folder.
-     */
-    dropboxClientCredentials = {
-      key: DROPBOX_APP_KEY,
-      //sandbox phased out in 0.10 and OAuth 2.0
-      //sandbox: false
-    };
-    //this code is no longer necessary
-    //dropboxAuthDriver = new Dropbox.Drivers.Redirect({
-    //  rememberUser: true
-    //});
-    dropboxClient = new Dropbox.Client(dropboxClientCredentials);
     //nope
     //dropboxClient.authDriver(dropboxAuthDriver);
     dropboxXooMLUtility = {
@@ -230,7 +316,7 @@
       console.log('we\'re calling modal');
       var folderSelect = new modalFolderSelect(ItemMirror);
       folderSelect.run();
-      $('#modalDialog').modal('show');
+      console.log(modalFolderSelect);
     }
 
   });

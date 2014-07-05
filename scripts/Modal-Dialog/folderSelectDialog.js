@@ -3,34 +3,39 @@
    * require.js dependency on your page. See the <script> tag in this document ending with
    * "require.js"
    */
-  require(["ItemMirror"], function(ItemMirror){
-    "use strict";
+  //require(["ItemMirror"], function(ItemMirror){
+  //  "use strict";
 
-    dropboxClientCredentials = {
-      key: DROPBOX_APP_KEY,
-    };
+    //dropboxClientCredentials = {
+    //  key: DROPBOX_APP_KEY,
+    //};
 
     
 //TODO make it so you can pass in a delimiter
-function modalFolderSelect() {
+function modalFolderSelect(ItemMirror) {
       groupingItemURI = "/";
+      itemMirrorOptions[1].groupingItemURI = groupingItemURI;
+      itemMirrorOptions[3].groupingItemURI = groupingItemURI;
+      var self = this;
       this.run = function() {
         dropboxClient.authenticate(function (error, client) {
           if (error) {
             throw error;
           }
-          this.constructNewItemMirror();
+          self.constructNewItemMirror();
         });
       };
-  
+      
       //Construct an itemMirror object and do something with it
       this.constructNewItemMirror = function() {
         // Construct new ItemMirror in Case 3, could choose other cases
+        console.log("Now Creating new itemMirror");
         new ItemMirror(itemMirrorOptions[3], function (error, itemMirror) {
           if (error) { throw error; }
+          console.log("Created new itemMirror");
           //SchemaVersion 0.54
           //alertSchemaVersion(itemMirror);
-          this.listAssociations(itemMirror);
+          self.listAssociations(itemMirror);
         });
       };
   
@@ -41,11 +46,11 @@ function modalFolderSelect() {
             var cap = 75;
             var length;
             console.log(itemMirror);
-            $('#modalDialog').empty();
+            $('#modalDialog div.modal-body ul').empty();
            itemMirror.listAssociations(function (error, GUIDs){
             itemMirror.getParent(function(error, parent){
               if (parent) {
-                upOneLevel(parent);
+                self.upOneLevel(parent);
               }
             });
             //make sure length does not exceed cap.
@@ -66,7 +71,7 @@ function modalFolderSelect() {
                 //Check if this Association is a Grouping Item (a folder in the case of dropbox)
               });
               //Print the Association
-              this.prntAssoc(error, displayText, GUIDs[i], itemMirror);
+              self.prntAssoc(error, displayText, GUIDs[i], itemMirror);
             }
             if (error) {
               console.log(error);
@@ -89,7 +94,7 @@ function modalFolderSelect() {
             if (error) { throw error; }
             //console.log(newItemMirror);
             //newItemMirror._groupingItemURI = newItemMirror._groupingItemURI;
-            this.listAssociations(newItemMirror);
+            self.listAssociations(newItemMirror);
           });
       };
   
@@ -113,21 +118,24 @@ function modalFolderSelect() {
             throw error;
         }
         //code for print to screen
-        var $thisAssoc = $('<div>'/*, {'class':"explorirror"}*/);
-        $thisAssoc.append($('<p>', {'text':displayText}))
+        //var $thisAssoc = $('<div>'/*, {'class':"explorirror"}*/);
+        
         itemMirror.isAssociatedItemGrouping(GUID, function(error, isGroupingItem){
           if (isGroupingItem) {
               //console.log("GUID is " + GUID);
               //console.log("break");
+              var $thisAssoc;
+              $thisAssoc = $('<li>', {'text':displayText});
               $thisAssoc.prepend($('<span>', {class:'glyphicon glyphicon-folder-close'}));
               //$thisAssoc.prepend($('<img>', {'src':"Folder.png", 'alt':displayText, 'title':displayText}));
-              $thisAssoc.bind("click",{guid:GUID, itemmirror:itemMirror},createItemMirrorFromGroupingItem);
+              $thisAssoc.bind("click",{guid:GUID, itemmirror:itemMirror},self.createItemMirrorFromGroupingItem);
+            $('#modalDialog div.modal-body ul').append($thisAssoc);
           }
           //else{
           //  $thisAssoc.prepend($('<img>', {'src':"Document.png", 'alt':displayText, 'title':displayText}));
           //}
         });
-        $('#modalDialog').append($thisAssoc);
+        
       };
       
       //Print an up one level button or link
@@ -135,12 +143,12 @@ function modalFolderSelect() {
         $('a#upOneLvl').remove();
        $('<a>', {'href':"#" + parent._groupingItemURI, 'text':"^ Up One Level ^", id: "upOneLvl"}).on("click", function(){
           if (parent) {
-            this.listAssociations(parent)
+            self.listAssociations(parent)
              //Event Handler for taking it back to parent
            }
-       }).insertBefore('#modalDialog');
+       }).insertBefore('#modalDialog div.modal-body ul');
       };
   }
     //modalFolderSelect.run(); this would start the script
 
-  });
+  //});
