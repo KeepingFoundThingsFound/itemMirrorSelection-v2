@@ -95,6 +95,13 @@ function modalFolderSelect(ItemMirror) {
             //console.log(newItemMirror);
             //newItemMirror._groupingItemURI = newItemMirror._groupingItemURI;
             self.listAssociations(newItemMirror);
+            newItemMirror.getGroupingItemURI(function (error, groupingItemURI) {
+                $('div#modalDialog button').click(function (e) {
+                        console.log(groupingItemURI);
+                        window.location.assign(window.location.href + "#" + groupingItemURI);
+                        window.location.reload();
+                  });
+            });
           });
       };
   
@@ -125,7 +132,7 @@ function modalFolderSelect(ItemMirror) {
               //console.log("GUID is " + GUID);
               //console.log("break");
               var $thisAssoc;
-              $thisAssoc = $('<li>', {'text':displayText});
+              $thisAssoc = $('<li>', {'text': " " + displayText});
               $thisAssoc.prepend($('<span>', {class:'glyphicon glyphicon-folder-close'}));
               //$thisAssoc.prepend($('<img>', {'src':"Folder.png", 'alt':displayText, 'title':displayText}));
               $thisAssoc.bind("click",{guid:GUID, itemmirror:itemMirror},self.createItemMirrorFromGroupingItem);

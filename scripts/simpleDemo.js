@@ -55,7 +55,10 @@
     //This is the starting point where the initial item mirror item will be
     //constructed: root. It can also be the name of
     //or path to a folder you want to limit access to
-    groupingItemURI = /#(.*)/.exec(window.location.href);
+    
+    if (/#(.*)/.exec(window.location.href)) {
+      groupingItemURI = decodeURI(/#(.*)/.exec(window.location.href)[1]);
+    }
     
     //Set up all of the item mirror options, even though
     //chances are the only one you're going to use is case 3
@@ -225,6 +228,7 @@
     }
     
     if (groupingItemURI) {
+      groupingItemURI = decodeURI(unescape(groupingItemURI));
       run();
     }else{
       console.log('we\'re calling modal');
