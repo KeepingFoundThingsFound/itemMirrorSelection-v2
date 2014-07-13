@@ -86,12 +86,15 @@ itemMirrorOptions = {
       };
   
       //get an array of Association GUIDs and do something with it.
-      function listAssociations(itemMirror){
+      function listAssociations(itemMirror, groupingItemURI){
             var displayText;
             var cap = MAXFOLDERS;
             var length;
             console.log(itemMirror);
+            $('a#upOneLvl').remove();
             $('#modalDialog div.modal-body ul').empty();
+            $('div#modalDialog div.modal-footer p').remove();
+            $('div#modalDialog div.modal-footer').prepend($('<p>',{text: groupingItemURI}).css('float', 'left'));
            itemMirror.listAssociations(function (error, GUIDs){
             itemMirror.getParent(function(error, parent){
               if (parent) {
@@ -124,8 +127,9 @@ itemMirrorOptions = {
           itemMirror.createItemMirrorForAssociatedGroupingItem(
             GUID, function (error, newItemMirror) {
             if (error) { throw error; }
-            listAssociations(newItemMirror);
+            
             newItemMirror.getGroupingItemURI(function (error, groupingItemURI) {
+                listAssociations(newItemMirror, groupingItemURI);
                 $('div#modalDialog button').click(function (e) {
                         console.log(groupingItemURI);
                         window.location.assign(DESTURL + DELIMITER + groupingItemURI);
@@ -169,9 +173,9 @@ itemMirrorOptions = {
       //Print an up one level button or link
       function upOneLevel(parent) {
         $('a#upOneLvl').remove();
-       $('<a>', {'href':"#" + parent._groupingItemURI, 'text':"^ Up One Level ^", id: "upOneLvl"}).on("click", function(){
+       $('<a>', {'class': "btn btn-primary btn-sm active", 'href':"#" + parent._groupingItemURI, 'text':"^ Up One Level ^", id: "upOneLvl"}).on("click", function(){
           if (parent) {
-            listAssociations(parent)
+            listAssociations(parent, parent._groupingItemURI)
            }
        }).insertBefore('#modalDialog div.modal-body ul');
       };

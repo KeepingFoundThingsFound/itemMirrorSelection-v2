@@ -34,13 +34,16 @@ function modalFolderSelect(ItemMirror) {
       };
   
       //get an array of Association GUIDs and do something with it.
-      this.listAssociations = function(itemMirror){
+      this.listAssociations = function(itemMirror, groupingItemURI){
             var displayText;
             //Limit output to x associations
             var cap = this.MAXFOLDERS;
             var length;
             console.log(itemMirror);
+            $('a#upOneLvl').remove();
             $('#modalDialog div.modal-body ul').empty();
+                        $('div#modalDialog div.modal-footer p').remove();
+            $('div#modalDialog div.modal-footer').prepend($('<p>',{text: groupingItemURI}).css('float', 'left'));
            itemMirror.listAssociations(function (error, GUIDs){
             itemMirror.getParent(function(error, parent){
               if (parent) {
@@ -75,8 +78,8 @@ function modalFolderSelect(ItemMirror) {
           itemMirror.createItemMirrorForAssociatedGroupingItem(
             GUID, function (error, newItemMirror) {
             if (error) { throw error; }
-            self.listAssociations(newItemMirror);
             newItemMirror.getGroupingItemURI(function (error, groupingItemURI) {
+                  self.listAssociations(newItemMirror, groupingItemURI);
                 $('div#modalDialog button').click(function (e) {
                         console.log(groupingItemURI);
                         window.location.assign(window.location.href + this.DELIMITER + groupingItemURI);
@@ -122,9 +125,10 @@ function modalFolderSelect(ItemMirror) {
       //Print an up one level button or link
       this.upOneLevel = function(parent) {
         $('a#upOneLvl').remove();
+        $('<a>', {'class': "btn btn-primary btn-sm active", 'href':"#" + parent._groupingItemURI, 'text':"^ Up One Level ^", id: "upOneLvl"}).on("click", function(){
        $('<a>', {'href':"#" + parent._groupingItemURI, 'text':"^ Up One Level ^", id: "upOneLvl"}).on("click", function(){
           if (parent) {
-            self.listAssociations(parent)
+            self.listAssociations(parent, parent._groupingItemURI)
            }
        }).insertBefore('#modalDialog div.modal-body ul');
       };
