@@ -33,6 +33,15 @@ Dependencies: Bootstrap, jQuery
 *LIMITATIONS: If your application is scoped inside a require() requirejs function call, you need to add it as a dependency in order to call the scoped "run" function.*
 Currently it's implemented as Redirect/Path String Append. It can be modified to call a function and run another script, however the above limitation needs to be overcome before doing so.
 
+USAGE:
+From your application, you would construct a new modalFolderSelect object and pass in your ItemMirror variable.
+Then run show to show the modal.
+```
+      var folderSelect = new modalFolderSelect(ItemMirror);
+      folderSelect.run();
+      $('#modalDialog').modal('show');
+```
+
 ###Panel Sidebar (Not yet implemented) ###
 - Coming Soon
 
