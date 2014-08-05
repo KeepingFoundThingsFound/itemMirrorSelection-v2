@@ -26,30 +26,31 @@ function modalFolderSelect(ItemMirror) {
       //Construct an itemMirror object and do something with it
       this.constructNewItemMirror = function() {
         console.log("Now Creating new itemMirror");
+        var $modalDia = $('#modalDialog div.modal-body ul');
         new ItemMirror(itemMirrorOptions[3], function (error, itemMirror) {
           if (error) { throw error; }
           console.log("Created new itemMirror");
-          self.listAssociations(itemMirror);
+          self.listAssociations(itemMirror, $modalDia);
         });
       };
   
       //get an array of Association GUIDs and do something with it.
-      this.listAssociations = function(itemMirror, groupingItemURI){
+      this.listAssociations = function(itemMirror, $dest, groupingItemURI){
             var displayText;
             //Limit output to x associations
             var cap = this.MAXFOLDERS;
             var length;
             console.log(itemMirror);
-            $('a#upOneLvl').remove();
-            $('#modalDialog div.modal-body ul').empty();
-                        $('div#modalDialog div.modal-footer p').remove();
+            //$('a#upOneLvl').remove();
+            //$('#modalDialog div.modal-body ul').empty();
+            $('div#modalDialog div.modal-footer p').remove();
             $('div#modalDialog div.modal-footer').prepend($('<p>',{text: groupingItemURI}).css('float', 'left'));
            itemMirror.listAssociations(function (error, GUIDs){
-            itemMirror.getParent(function(error, parent){
-              if (parent) {
-                self.upOneLevel(parent);
-              }
-            });
+            //itemMirror.getParent(function(error, parent){
+            //  if (parent) {
+            //    self.upOneLevel(parent);
+            //  }
+            //});
             if (GUIDs.length >= cap) {
               length = cap
             }else {
@@ -61,7 +62,7 @@ function modalFolderSelect(ItemMirror) {
                 //Check if this Association is a Grouping Item (a folder in the case of dropbox)
               });
               //Print the Association
-              self.prntAssoc(error, displayText, GUIDs[i], itemMirror);
+              self.prntAssoc(error, displayText, GUIDs[i], itemMirror, $dest);
             }
             if (error) {
               console.log(error);
@@ -71,15 +72,15 @@ function modalFolderSelect(ItemMirror) {
   
       //Event handler for navigating into a subfolder/child grouping item
       //you've clicked on
-      this.createItemMirrorFromGroupingItem = function(event) {
-          var itemMirror = event.data.itemmirror;
-          var GUID = event.data.guid;
+      this.createItemMirrorFromGroupingItem = function($dest) {
+          //var itemMirror = event.data.itemmirror;
+          //var GUID = event.data.guid;
           console.log("Now creating a grouping item for " + GUID);
           itemMirror.createItemMirrorForAssociatedGroupingItem(
             GUID, function (error, newItemMirror) {
             if (error) { throw error; }
             newItemMirror.getGroupingItemURI(function (error, groupingItemURI) {
-                  self.listAssociations(newItemMirror, groupingItemURI);
+                  self.listAssociations(newItemMirror, $dest, groupingItemURI);
                 $('div#modalDialog button').click(function (e) {
                         console.log(groupingItemURI);
                         window.location.assign(window.location.href + this.DELIMITER + groupingItemURI);
@@ -103,7 +104,7 @@ function modalFolderSelect(ItemMirror) {
        *The Printout for individual iM Associations
        *Uses jQuery to manipulate the DOM
        **/
-      this.prntAssoc = function(error, displayText, GUID, itemMirror){
+      this.prntAssoc = function(error, displayText, GUID, itemMirror, $dest){
         if (error) {
             throw error;
         }
@@ -114,14 +115,29 @@ function modalFolderSelect(ItemMirror) {
               //console.log("break");
               var $thisAssoc;
               $thisAssoc = $('<li>', {'text': " " + displayText});
-              $thisAssoc.prepend($('<span>', {class:'glyphicon glyphicon-folder-close'}));
-              $thisAssoc.bind("click",{guid:GUID, itemmirror:itemMirror},self.createItemMirrorFromGroupingItem);
-            $('#modalDialog div.modal-body ul').append($thisAssoc);
+              $thisAssoc.prepend($('<span>', {class:'glyphicon glyphicon-chevron-right'}).click(function(){
+                  if (!$thisAssoc.children("ul")) {
+                        $subIM = $thisAssoc.append("ul");
+                        self.createItemMirrorFromGroupingItem($subIM);
+                  }
+                  if ($( this ).hasClass("glyphicon-chevron-right")) {
+                        $( this ).removeClass("glyphicon-chevron-right");
+                        $( this ).addClass("glyphicon-chevron-down");
+                        $thisAssoc.children("ul").show();
+                  }else{
+                        $( this ).removeClass("glyphicon-chevron-down");
+                        $( this ).addClass("glyphicon-chevron-right");
+                        $thisAssoc.children("ul").hide();
+                  }
+                    
+              }));
+              //$thisAssoc.bind("click",{guid:GUID, itemmirror:itemMirror},self.createItemMirrorFromGroupingItem);
+            $dest.append($thisAssoc);
           }
         });
         
       };
-      
+      /**
       //Print an up one level button or link
       this.upOneLevel = function(parent) {
         $('a#upOneLvl').remove();
@@ -131,8 +147,10 @@ function modalFolderSelect(ItemMirror) {
             self.listAssociations(parent, parent._groupingItemURI)
            }
        }).insertBefore('#modalDialog div.modal-body ul');
-      };
-  }
+      });
+      
+  }**/
+}
     //modalFolderSelect.run(); this would start the script, call this from your application.
 
   //});
