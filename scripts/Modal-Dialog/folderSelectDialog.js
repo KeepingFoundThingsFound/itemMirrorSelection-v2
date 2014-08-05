@@ -6,9 +6,11 @@
     
 //TODO make it so you can pass in a delimiter
 function modalFolderSelect(ItemMirror) {
-      
       var DELIMITER = "#";
       var MAXFOLDERS = 200;
+      
+      DELIMITER = "#";
+      MAXFOLDERS = 200;
       
       groupingItemURI = "/";
       itemMirrorOptions[1].groupingItemURI = groupingItemURI;
@@ -16,6 +18,7 @@ function modalFolderSelect(ItemMirror) {
       var self = this;
       this.run = function() {
         dropboxClient.authenticate(function (error, client) {
+            this.DELIMITER = "#";
           if (error) {
             throw error;
           }
@@ -25,8 +28,7 @@ function modalFolderSelect(ItemMirror) {
       
       //Construct an itemMirror object and do something with it
       this.constructNewItemMirror = function() {
-        console.log("Now Creating new itemMirror");
-        var $modalDia = $('#modalDialog div.modal-body ul');
+        var $modalDia = $('#modalDialog div.modal-body div');
         new ItemMirror(itemMirrorOptions[3], function (error, itemMirror) {
           if (error) { throw error; }
           console.log("Created new itemMirror");
@@ -72,7 +74,7 @@ function modalFolderSelect(ItemMirror) {
   
       //Event handler for navigating into a subfolder/child grouping item
       //you've clicked on
-      this.createItemMirrorFromGroupingItem = function($dest) {
+      this.createItemMirrorFromGroupingItem = function(GUID, itemMirror, $dest) {
           //var itemMirror = event.data.itemmirror;
           //var GUID = event.data.guid;
           console.log("Now creating a grouping item for " + GUID);
@@ -81,14 +83,26 @@ function modalFolderSelect(ItemMirror) {
             if (error) { throw error; }
             newItemMirror.getGroupingItemURI(function (error, groupingItemURI) {
                   self.listAssociations(newItemMirror, $dest, groupingItemURI);
-                $('div#modalDialog button').click(function (e) {
-                        console.log(groupingItemURI);
-                        window.location.assign(window.location.href + this.DELIMITER + groupingItemURI);
-                        window.location.reload();
-                  });
+                  //$('div#modalDialog button').click(function (e) {
+                  //      console.log(groupingItemURI);
+                  //      window.location.assign(window.location.href + this.DELIMITER + groupingItemURI);
+                   //     //window.location.reload();
+                  //});
             });
           });
       };
+      
+      this.goToFolder = function(GUID, itemMirror){
+            itemMirror.createItemMirrorForAssociatedGroupingItem(
+                  GUID, function (error, newItemMirror) {
+                  if (error) { throw error; }
+                  newItemMirror.getGroupingItemURI(function (error, groupingItemURI) {
+                              console.log(groupingItemURI);
+                              window.location.assign(window.location.href + this.DELIMITER + groupingItemURI);
+                              window.location.reload();
+                  });
+            });
+      }
   
       this.alertSchemaVersion = function (itemMirror) {
         // Most "get" methods follow this pattern. Check documentation to be sure.
@@ -114,20 +128,37 @@ function modalFolderSelect(ItemMirror) {
               //console.log("GUID is " + GUID);
               //console.log("break");
               var $thisAssoc;
-              $thisAssoc = $('<li>', {'text': " " + displayText});
+              $thisAssoc = $('<a>', {'text': " " + displayText, 'class': "list-group-item"}).click(function(event){
+                  event.preventDefault();
+                  var target = $( event.target );
+                  if (event.target != this) {
+                          return;
+                  }
+                        $('div#modalDialog button').remove();
+                        //$( this ).children('span').click();
+                        $('#modalDialog div a.active').removeClass("active")
+                        $( this ).addClass("active");
+                        $thisAssoc.append($('<button>', {'text': "Open this Folder", 'type':"button", 'class':"btn btn-primary"}).click(function(){
+                              $thisAssoc.dblclick();      
+                        }));
+                  
+              }).dblclick(function(){
+                  self.goToFolder(GUID, itemMirror);
+              });
               $thisAssoc.prepend($('<span>', {class:'glyphicon glyphicon-chevron-right'}).click(function(){
-                  if (!$thisAssoc.children("ul")) {
-                        $subIM = $thisAssoc.append("ul");
-                        self.createItemMirrorFromGroupingItem($subIM);
+                  if ($thisAssoc.children("div").length == 0) {
+                        $subIM = $('<div>', {'class': "list-group"});
+                        $thisAssoc.append($subIM);
+                        self.createItemMirrorFromGroupingItem(GUID, itemMirror, $subIM);
                   }
                   if ($( this ).hasClass("glyphicon-chevron-right")) {
                         $( this ).removeClass("glyphicon-chevron-right");
                         $( this ).addClass("glyphicon-chevron-down");
-                        $thisAssoc.children("ul").show();
+                        $thisAssoc.children("div").show();
                   }else{
                         $( this ).removeClass("glyphicon-chevron-down");
                         $( this ).addClass("glyphicon-chevron-right");
-                        $thisAssoc.children("ul").hide();
+                        $thisAssoc.children("div").hide();
                   }
                     
               }));

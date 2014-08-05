@@ -1,0 +1,7 @@
+#modalDialog ul {
+    list-style-type: none;
+}
+
+#modalDialog button {
+    margin: 0.5em;
+}
