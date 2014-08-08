@@ -232,9 +232,15 @@
       run();
     }else{
       console.log('we\'re calling modal');
-      var folderSelect = new modalFolderSelect(ItemMirror);
-      folderSelect.run();
+      var folderSelectList = new modalFolderSelectList(ItemMirror);
+      var folderSelectExplorer = new modalFolderSelectExplorer(ItemMirror);
+      
+      $('#modalDialog div.btn-group label').click(function() {
+          FolderSelectTypeHandler(ItemMirror, folderSelectList, folderSelectExplorer);
+        });
+      folderSelectList.run();
       $('#modalDialog').modal('show');
+      
     }
 
   });
