@@ -6,13 +6,13 @@
 
 
 function FolderSelectTypeHandler(ItemMirror, List, Explorer){
-     var ListOrFolderView = $('#modalDialog div.btn-group label.active input:radio')[0].value;
+     var ListOrFolderView = $('#modalDialog div.btn-group input:radio:checked').val();;
       
       if (itemMirrorOptions[3].groupingItemURI == null) {
             itemMirrorOptions[3].groupingItemURI = groupingItemURI;
       }
       
-      if (ListOrFolderView != "List") {
+      if (ListOrFolderView == "List") {
             $('#modalDialog div.modal-body div').empty();
             console.log("List");
             List.run();
